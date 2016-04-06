@@ -14,12 +14,13 @@ part 'src/board.dart';
 part 'src/actions.dart';
 part 'src/store.dart';
 part 'src/components.dart';
+part 'src/payloads.dart';
 
 class GoModule extends Module {
-    GoComponents _components;
+  GoComponents _components;
 
-    GoComponents get components => _components;
-  
+  GoComponents get components => _components;
+
   GoModule() {
     GoActions actions = new GoActions();
     GoStore store = new GoStore(actions);

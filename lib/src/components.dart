@@ -8,4 +8,3 @@ class GoComponents extends ModuleComponents {
 
   content() => BoardSvg({'actions': _actions, 'store': _store});
 }
-

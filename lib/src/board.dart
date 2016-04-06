@@ -9,6 +9,7 @@ var dotRadius = offset / 2 - 2;
 bool blackTurn = true;
 
 var Dot = React.registerComponent(() => new _Dot());
+
 class _Dot extends FluxComponent<Actions, GoStore> {
   getInitialState() {
     return {
@@ -38,8 +39,8 @@ class _Dot extends FluxComponent<Actions, GoStore> {
       }
       this.setState({'color': newColor, 'hover': false});
       blackTurn = !blackTurn;
-    } 
-    actions.playPiece(3);
+    }
+    actions.playPiece(new PlayPiecePayload(3, 4));
     this.redraw();
   }
 
@@ -57,25 +58,23 @@ class _Dot extends FluxComponent<Actions, GoStore> {
       opacity = .5;
     }
     return React.circle({
-        'cx': this.state['x'],
-        'cy': this.state['y'],
-        'r': dotRadius,
-        'fill': color,
-        'opacity': opacity,
-        'onClick': (e) => this.dotClicked(e),
-        'onTouch': (e) => this.dotClicked(e),
-        'onMouseEnter': (e) => this.onEnter(e),
-        'onMouseLeave': (e) => this.onExit(e)
-      });
+      'cx': this.state['x'],
+      'cy': this.state['y'],
+      'r': dotRadius,
+      'fill': color,
+      'opacity': opacity,
+      'onClick': (e) => this.dotClicked(e),
+      'onTouch': (e) => this.dotClicked(e),
+      'onMouseEnter': (e) => this.onEnter(e),
+      'onMouseLeave': (e) => this.onExit(e)
+    });
   }
 }
 
 var BoardSvg = React.registerComponent(() => new _BoardSvg());
 
-class _BoardSvg extends FluxComponent<Actions, GoStore>
- {
-
-  void getDimension () {
+class _BoardSvg extends FluxComponent<Actions, GoStore> {
+  void getDimension() {
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
     avail -= 50;
     height = avail;
@@ -86,7 +85,6 @@ class _BoardSvg extends FluxComponent<Actions, GoStore>
   }
 
   render() {
-
     this.getDimension();
 
     List children = new List();
@@ -100,14 +98,12 @@ class _BoardSvg extends FluxComponent<Actions, GoStore>
       'fill': '#ffdc99',
       'stroke': 'darkGray',
       'strokeWidth': 2,
-      'style': {
-        'opacity': '.95',
-      }
+      'style': {'opacity': '.95',}
     }));
 
     var localOffSet = 0;
     for (var i = 0; i < lines - 1; i++) {
-      localOffSet += offset; 
+      localOffSet += offset;
       children.add(React.line({
         'x1': offset,
         'y1': localOffSet,
@@ -128,13 +124,13 @@ class _BoardSvg extends FluxComponent<Actions, GoStore>
       for (var ii = 0; ii < lines - 1; ii++) {
         localOffsetInterior += offset;
         dots.add(Dot({
-          'x': localOffSet, 
-          'y': localOffsetInterior, 
+          'x': localOffSet,
+          'y': localOffsetInterior,
           'color': 'red',
           'actions': actions,
-          'srote': store}));
+          'srote': store
+        }));
       }
-
     }
 
     children.addAll(dots);
