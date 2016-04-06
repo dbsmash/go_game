@@ -9,7 +9,7 @@ var dotRadius = offset / 2 - 2;
 bool blackTurn = true;
 
 var Dot = React.registerComponent(() => new _Dot());
-class _Dot extends React.Component {
+class _Dot extends FluxComponent<Actions, GoStore> {
   getInitialState() {
     return {
       'color': this.props['color'],
@@ -39,7 +39,7 @@ class _Dot extends React.Component {
       this.setState({'color': newColor, 'hover': false});
       blackTurn = !blackTurn;
     } 
-
+    actions.playPiece(3);
     this.redraw();
   }
 
@@ -72,7 +72,8 @@ class _Dot extends React.Component {
 
 var BoardSvg = React.registerComponent(() => new _BoardSvg());
 
-class _BoardSvg extends React.Component {
+class _BoardSvg extends FluxComponent<Actions, GoStore>
+ {
 
   void getDimension () {
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
@@ -126,7 +127,12 @@ class _BoardSvg extends React.Component {
       var localOffsetInterior = 0;
       for (var ii = 0; ii < lines - 1; ii++) {
         localOffsetInterior += offset;
-        dots.add(Dot({'x': localOffSet, 'y': localOffsetInterior, 'color': 'red'}));
+        dots.add(Dot({
+          'x': localOffSet, 
+          'y': localOffsetInterior, 
+          'color': 'red',
+          'actions': actions,
+          'srote': store}));
       }
 
     }
