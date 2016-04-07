@@ -20,6 +20,24 @@ class GoBoard {
         return this.map[x][y];
     }
 
+    List getNeighborCoords(int x, int y) {
+        List neighbors = new List();
+
+        if (x > 0) neighbors.add([x-1, y]);
+        if (x < this.size - 1) neighbors.add([x + 1, y]);
+        if (y > 0) neighbors.add([x, y - 1]);
+        if (y < this.size - 1) neighbors.add([x, y + 1]);
+
+        return neighbors;
+    }
+
+    bool isLegalMove(String color, int x, int y) {
+        List neighbors = this.getNeighborCoords(x, y);
+        for (var i =0; i < neighbors.length; i++) {
+        }
+        return false;
+    }
+
     void makeMove(int x, int y) {
         String color = 'B';
         if (!this.blackTurn) {
@@ -27,6 +45,7 @@ class GoBoard {
         }
         this.map[x][y] = color;
         this.blackTurn = !this.blackTurn;
+        this.getNeighborCoords(x, y);
     }
 
     void printBoard () {
@@ -65,8 +84,9 @@ class GoStore extends Store {
 
   void _handlePieceRequest(PlayPiecePayload payload) {
     this.board.makeMove(payload.x, payload.y);
-    //
+    // handle illegal move
     blackTurn = !blackTurn;
-    _events.boardUpdated(this.board, key);
+    this.trigger();
+    //_events.boardUpdated(this.board, key);
   }
 }

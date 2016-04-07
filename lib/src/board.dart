@@ -4,27 +4,18 @@ var BoardSvg = React.registerComponent(() => new _BoardSvg());
 
 class _BoardSvg extends FluxComponent<Actions, GoStore> {
   getInitialState() {
-    GoBoard board = new GoBoard(19);
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
     avail -= 50;
     int height = avail;
-    double offset = height / (board.size + 1);
+    double offset = height / (store.board.size + 1);
     double dotRadius = offset / 2 - 2;
     
     return {
-      'board': board,
       'width': height,
       'height': height,
       'lineOffset': offset,
       'dotRadius': dotRadius
     };
-  }
-
-
-  componentWillMount() {
-    store.events.boardUpdated.listen((board) {
-      this.setState({'board': board});
-    });
   }
 
   render() {
@@ -47,7 +38,7 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
     }));
 
     var localOffSet = 0;
-    for (var row = 0; row < this.state['board'].size; row++) {
+    for (var row = 0; row < store.board.size; row++) {
       localOffSet += this.state['lineOffset'];
       children.add(React.line({
         'x1': this.state['lineOffset'],
@@ -66,10 +57,10 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
       }));
 
       var localOffsetInterior = 0;
-      for (var column = 0; column < this.state['board'].size; column++) {
+      for (var column = 0; column < store.board.size; column++) {
         localOffsetInterior += this.state['lineOffset'];
 
-        String color = this.state['board'].getColorIndicatorAt(column, row);
+        String color = store.board.getColorIndicatorAt(column, row);
 
         dots.add(Dot({
           'x': localOffSet,
