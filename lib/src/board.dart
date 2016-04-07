@@ -1,99 +1,25 @@
 part of go_game;
 
-// board configuration
-var height = 500;
-var width = 500;
-var lines = 20;
-var offset = height / lines;
-var dotRadius = offset / 2 - 2;
-
-var Dot = React.registerComponent(() => new _Dot());
-
-class _Dot extends FluxComponent<Actions, GoStore> {
-  getInitialState() {
-    return {
-      'color': this.props['color'],
-      'x': this.props['x'],
-      'y': this.props['y'],
-      'row': this.props['row'],
-      'column': this.props['column'],
-      'hover': false
-    };
-  }
-
-  void onEnter(React.SyntheticMouseEvent e) {
-    this.setState({'hover': true});
-  }
-
-  void onExit(React.SyntheticMouseEvent e) {
-    this.setState({'hover': false});
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps['color'] != this.props['color']) {
-      return true;
-    }
-    if (nextState['hover'] != this.state['hover']) {
-      return true;
-    }
-    return false;
-  }
-
-  void dotClicked(React.SyntheticMouseEvent e) {
-    if (this.props['color'] != '-') {
-      return;
-    }
-    actions.requestPiecePlacement(
-        new PlayPiecePayload(this.state['column'], this.state['row']));
-    this.redraw();
-  }
-
-  render() {
-    double opacity = 1.0;
-    String color = this.props['color'];
-    if (color == '-') {
-      color = 'red';
-      opacity = 0.0;
-      if (this.state['hover'] == true) {
-        color = store.getHoverColor();
-        opacity = .5;
-      }
-    } else if (color == 'W') {
-      color = 'white';
-    } else if (color == 'B') {
-      color = 'black';
-    }
-
-    return React.circle({
-      'cx': this.state['x'],
-      'cy': this.state['y'],
-      'r': dotRadius,
-      'fill': color,
-      'opacity': opacity,
-      'onClick': (e) => this.dotClicked(e),
-      'onTouch': (e) => this.dotClicked(e),
-      'onMouseEnter': (e) => this.onEnter(e),
-      'onMouseLeave': (e) => this.onExit(e)
-    });
-  }
-}
-
 var BoardSvg = React.registerComponent(() => new _BoardSvg());
 
 class _BoardSvg extends FluxComponent<Actions, GoStore> {
   getInitialState() {
-    return {'board': new GoBoard(19)};
-  }
-
-  void getDimension() {
+    GoBoard board = new GoBoard(19);
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
     avail -= 50;
-    height = avail;
-    width = avail;
-    lines = 20;
-    offset = height / lines;
-    dotRadius = offset / 2 - 2;
+    int height = avail;
+    double offset = height / (board.size + 1);
+    double dotRadius = offset / 2 - 2;
+    
+    return {
+      'board': board,
+      'width': height,
+      'height': height,
+      'lineOffset': offset,
+      'dotRadius': dotRadius
+    };
   }
+
 
   componentWillMount() {
     store.events.boardUpdated.listen((board) {
@@ -102,10 +28,12 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
   }
 
   render() {
-    this.getDimension();
 
     List children = new List();
     List dots = new List();
+    int width = this.state['width'];
+    int height = this.state['height'];
+
     // Board background
     children.add(React.rect({
       'x': 0,
@@ -119,36 +47,37 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
     }));
 
     var localOffSet = 0;
-    for (var i = 0; i < this.state['board'].size; i++) {
-      localOffSet += offset;
+    for (var row = 0; row < this.state['board'].size; row++) {
+      localOffSet += this.state['lineOffset'];
       children.add(React.line({
-        'x1': offset,
+        'x1': this.state['lineOffset'],
         'y1': localOffSet,
-        'x2': width - offset,
+        'x2': width - this.state['lineOffset'],
         'y2': localOffSet,
         'stroke': 'darkGray'
       }));
 
       children.add(React.line({
         'x1': localOffSet,
-        'y1': offset,
+        'y1': this.state['lineOffset'],
         'x2': localOffSet,
-        'y2': height - offset,
+        'y2': height - this.state['lineOffset'],
         'stroke': 'darkGray'
       }));
 
       var localOffsetInterior = 0;
-      for (var ii = 0; ii < this.state['board'].size; ii++) {
-        localOffsetInterior += offset;
+      for (var column = 0; column < this.state['board'].size; column++) {
+        localOffsetInterior += this.state['lineOffset'];
 
-        String color = this.state['board'].getColorIndicatorAt(ii, i);
+        String color = this.state['board'].getColorIndicatorAt(column, row);
 
         dots.add(Dot({
           'x': localOffSet,
           'y': localOffsetInterior,
-          'row': i,
-          'column': ii,
+          'row': row,
+          'column': column,
           'color': color,
+          'radius': this.state['dotRadius'],
           'actions': actions,
           'store': store
         }));
@@ -161,17 +90,7 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
       'version': '1.1',
       'xmlns': 'http://www.w3.org/2000/svg',
       'width': width,
-      'height': height,
-      'style': {
-        'WebkitTouchCallout': 'none',
-        'WebkitUserSelect': 'none',
-        'KhtmlUserSelect': 'none',
-        'MozUserSelect': 'none',
-        'MsUserSelect': 'none',
-        'userSelect': 'none',
-        // 'transform': 'scale(3.0)',
-        // 'outline': '1px solid rgba(200, 200, 200, .75)',
-      }
+      'height': height
     }, children);
   }
 }
