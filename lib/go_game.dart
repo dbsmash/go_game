@@ -15,15 +15,21 @@ part 'src/actions.dart';
 part 'src/store.dart';
 part 'src/components.dart';
 part 'src/payloads.dart';
+part 'src/events.dart';
 
 class GoModule extends Module {
   GoComponents _components;
+  GoEvents _events;
 
   GoComponents get components => _components;
+  GoEvents get events => _events;
 
   GoModule() {
+    _events = new GoEvents();
+
     GoActions actions = new GoActions();
-    GoStore store = new GoStore(actions);
+    GoStore store = new GoStore(actions, _events);
+
     _components = new GoComponents(actions, store);
   }
 }

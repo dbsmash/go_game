@@ -6,7 +6,6 @@ var width = 500;
 var lines = 20;
 var offset = height / lines;
 var dotRadius = offset / 2 - 2;
-bool blackTurn = true;
 
 var Dot = React.registerComponent(() => new _Dot());
 
@@ -16,14 +15,13 @@ class _Dot extends FluxComponent<Actions, GoStore> {
       'color': this.props['color'],
       'x': this.props['x'],
       'y': this.props['y'],
+      'row': this.props['row'],
+      'column': this.props['column'],
       'hover': false
     };
   }
 
   void onEnter(React.SyntheticMouseEvent e) {
-    if (this.state['color'] != 'red') {
-      return;
-    }
     this.setState({'hover': true});
   }
 
@@ -31,32 +29,41 @@ class _Dot extends FluxComponent<Actions, GoStore> {
     this.setState({'hover': false});
   }
 
-  void dotClicked(React.SyntheticMouseEvent e) {
-    if (this.state['color'] == 'red') {
-      String newColor = 'black';
-      if (!blackTurn) {
-        newColor = 'white';
-      }
-      this.setState({'color': newColor, 'hover': false});
-      blackTurn = !blackTurn;
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps['color'] != this.props['color']) {
+      return true;
     }
-    actions.playPiece(new PlayPiecePayload(3, 4));
+    if (nextState['hover'] != this.state['hover']) {
+      return true;
+    }
+    return false;
+  }
+
+  void dotClicked(React.SyntheticMouseEvent e) {
+    if (this.props['color'] != '-') {
+      return;
+    }
+    actions.requestPiecePlacement(
+        new PlayPiecePayload(this.state['column'], this.state['row']));
     this.redraw();
   }
 
   render() {
     double opacity = 1.0;
-    String color = this.state['color'];
-    if (this.state['color'] != 'black' && this.state['color'] != 'white') {
+    String color = this.props['color'];
+    if (color == '-') {
+      color = 'red';
       opacity = 0.0;
-    }
-    if (this.state['hover'] == true) {
-      color = 'black';
-      if (!blackTurn) {
-        color = 'white';
+      if (this.state['hover'] == true) {
+        color = store.getHoverColor();
+        opacity = .5;
       }
-      opacity = .5;
+    } else if (color == 'W') {
+      color = 'white';
+    } else if (color == 'B') {
+      color = 'black';
     }
+
     return React.circle({
       'cx': this.state['x'],
       'cy': this.state['y'],
@@ -74,6 +81,10 @@ class _Dot extends FluxComponent<Actions, GoStore> {
 var BoardSvg = React.registerComponent(() => new _BoardSvg());
 
 class _BoardSvg extends FluxComponent<Actions, GoStore> {
+  getInitialState() {
+    return {'board': new GoBoard(19)};
+  }
+
   void getDimension() {
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
     avail -= 50;
@@ -82,6 +93,12 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
     lines = 20;
     offset = height / lines;
     dotRadius = offset / 2 - 2;
+  }
+
+  componentWillMount() {
+    store.events.boardUpdated.listen((board) {
+      this.setState({'board': board});
+    });
   }
 
   render() {
@@ -102,7 +119,7 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
     }));
 
     var localOffSet = 0;
-    for (var i = 0; i < lines - 1; i++) {
+    for (var i = 0; i < this.state['board'].size; i++) {
       localOffSet += offset;
       children.add(React.line({
         'x1': offset,
@@ -121,14 +138,19 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
       }));
 
       var localOffsetInterior = 0;
-      for (var ii = 0; ii < lines - 1; ii++) {
+      for (var ii = 0; ii < this.state['board'].size; ii++) {
         localOffsetInterior += offset;
+
+        String color = this.state['board'].getColorIndicatorAt(ii, i);
+
         dots.add(Dot({
           'x': localOffSet,
           'y': localOffsetInterior,
-          'color': 'red',
+          'row': i,
+          'column': ii,
+          'color': color,
           'actions': actions,
-          'srote': store
+          'store': store
         }));
       }
     }
