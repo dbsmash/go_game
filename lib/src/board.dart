@@ -1,153 +1,132 @@
 part of go_game;
 
-// board configuration
-var height = 500;
-var width = 500;
-var lines = 20;
-var offset = height / lines;
-var dotRadius = offset / 2 - 2;
-bool blackTurn = true;
+class GoBoard {
+    List<List> map;
+    bool blackTurn = true;
+    int size;
 
-var Dot = React.registerComponent(() => new _Dot());
-class _Dot extends React.Component {
-  getInitialState() {
-    return {
-      'color': this.props['color'],
-      'x': this.props['x'],
-      'y': this.props['y'],
-      'hover': false
-    };
-  }
-
-  void onEnter(React.SyntheticMouseEvent e) {
-    if (this.state['color'] != 'red') {
-      return;
-    }
-    this.setState({'hover': true});
-  }
-
-  void onExit(React.SyntheticMouseEvent e) {
-    this.setState({'hover': false});
-  }
-
-  void dotClicked(React.SyntheticMouseEvent e) {
-    if (this.state['color'] == 'red') {
-      String newColor = 'black';
-      if (!blackTurn) {
-        newColor = 'white';
-      }
-      this.setState({'color': newColor, 'hover': false});
-      blackTurn = !blackTurn;
-    } 
-
-    this.redraw();
-  }
-
-  render() {
-    double opacity = 1.0;
-    String color = this.state['color'];
-    if (this.state['color'] != 'black' && this.state['color'] != 'white') {
-      opacity = 0.0;
-    }
-    if (this.state['hover'] == true) {
-      color = 'black';
-      if (!blackTurn) {
-        color = 'white';
-      }
-      opacity = .5;
-    }
-    return React.circle({
-        'cx': this.state['x'],
-        'cy': this.state['y'],
-        'r': dotRadius,
-        'fill': color,
-        'opacity': opacity,
-        'onClick': (e) => this.dotClicked(e),
-        'onTouch': (e) => this.dotClicked(e),
-        'onMouseEnter': (e) => this.onEnter(e),
-        'onMouseLeave': (e) => this.onExit(e)
-      });
-  }
-}
-
-var BoardSvg = React.registerComponent(() => new _BoardSvg());
-
-class _BoardSvg extends React.Component {
-
-  void getDimension () {
-    int avail = [window.innerHeight, window.innerWidth].reduce(min);
-    avail -= 50;
-    height = avail;
-    width = avail;
-    lines = 20;
-    offset = height / lines;
-    dotRadius = offset / 2 - 2;
-  }
-
-  render() {
-
-    this.getDimension();
-
-    List children = new List();
-    List dots = new List();
-    // Board background
-    children.add(React.rect({
-      'x': 0,
-      'y': 0,
-      'height': height,
-      'width': width,
-      'fill': '#ffdc99',
-      'stroke': 'darkGray',
-      'strokeWidth': 2,
-      'style': {
-        'opacity': '.95',
-      }
-    }));
-
-    var localOffSet = 0;
-    for (var i = 0; i < lines - 1; i++) {
-      localOffSet += offset; 
-      children.add(React.line({
-        'x1': offset,
-        'y1': localOffSet,
-        'x2': width - offset,
-        'y2': localOffSet,
-        'stroke': 'darkGray'
-      }));
-
-      children.add(React.line({
-        'x1': localOffSet,
-        'y1': offset,
-        'x2': localOffSet,
-        'y2': height - offset,
-        'stroke': 'darkGray'
-      }));
-
-      var localOffsetInterior = 0;
-      for (var ii = 0; ii < lines - 1; ii++) {
-        localOffsetInterior += offset;
-        dots.add(Dot({'x': localOffSet, 'y': localOffsetInterior, 'color': 'red'}));
-      }
-
+    GoBoard(this.size) {
+        this.map = new List<List>();
+        for (var i =0; i < this.size; i++) {
+            List row = new List();
+            for (var ii = 0; ii< this.size; ii++) {
+                row.add('-');
+            }
+            map.add(row);
+        }
     }
 
-    children.addAll(dots);
+    String getColorIndicatorAt(int x, int y) {
+        return this.map[x][y];
+    }
 
-    return React.svg({
-      'version': '1.1',
-      'xmlns': 'http://www.w3.org/2000/svg',
-      'width': width,
-      'height': height,
-      'style': {
-        'WebkitTouchCallout': 'none',
-        'WebkitUserSelect': 'none',
-        'KhtmlUserSelect': 'none',
-        'MozUserSelect': 'none',
-        'MsUserSelect': 'none',
-        'userSelect': 'none',
-        // 'transform': 'scale(3.0)',
-        // 'outline': '1px solid rgba(200, 200, 200, .75)',
-      }
-    }, children);
-  }
+    void killPosition(String killColor, int x, int y) {
+        this.map[x][y] = '-';
+        List neighboringCoords = this.getNeighborCoords(x, y);
+        for (var i =0; i < neighboringCoords.length; i++) {
+            List neighbor = neighboringCoords[i];
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) == killColor) {
+                this.killPosition(killColor, neighbor[0], neighbor[1]);
+            }
+        }
+    }
+
+    void checkForDeath(String killerColor, int killerX, int killerY) {
+        String targetColor = 'B';
+        if (killerColor == 'B') {
+            targetColor = 'W';
+        }
+         
+        List neighboringCoords = this.getNeighborCoords(killerX, killerY);
+        
+        for (var i =0; i < neighboringCoords.length; i++) {
+            List neighbor = neighboringCoords[i];
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) == '-') {
+                // already killed by another pass
+                continue;
+            }
+            if (!this.isAlive(neighbor[0], neighbor[1], new List())) {
+                this.killPosition(targetColor, neighbor[0], neighbor[1]);
+            }
+        }
+    }
+
+    bool isAlive(int x, int y, List checked) {
+        List neighboringCoords = this.getNeighborCoords(x, y);
+        
+        // first see if any adjacent spot is open
+        for (var i =0; i < neighboringCoords.length; i++) {
+            List neighbor = neighboringCoords[i];
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) == '-') {
+                return true;
+            }
+
+        }
+        List<bool> aliveNeighbors = new List();
+
+        for (var ii =0; ii < neighboringCoords.length; ii++) {
+            List neighbor = neighboringCoords[ii];
+            if (checked.contains('${neighbor[0]}-${neighbor[1]}')) {
+                continue;
+            }
+            checked.add('${neighbor[0]}-${neighbor[1]}');
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) != this.getColorIndicatorAt(x, y)) {
+                // stop checking this direction as it is enemy
+                continue;
+            }
+
+            aliveNeighbors.add(this.isAlive(neighbor[0], neighbor[1], checked));
+        }
+
+        for (var j = 0; j < aliveNeighbors.length; j++) {
+            if (aliveNeighbors[j] == true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    List getNeighborCoords(int x, int y) {
+        List neighbors = new List();
+
+        if (x > 0) neighbors.add([x-1, y]);
+        if (x < this.size - 1) neighbors.add([x + 1, y]);
+        if (y > 0) neighbors.add([x, y - 1]);
+        if (y < this.size - 1) neighbors.add([x, y + 1]);
+
+        return neighbors;
+    }
+
+    bool isLegalMove(String color, int x, int y) {
+        // TODO
+        return true;
+    }
+
+    bool makeMove(int x, int y) {
+        String color = 'B';
+        if (!this.blackTurn) {
+            color = 'W';
+        }
+
+        if (!this.isLegalMove(color, x, y)) {
+            return false;
+        }
+        this.map[x][y] = color;
+        this.blackTurn = !this.blackTurn;
+        this.checkForDeath(color, x, y);
+        return true;
+    }
+
+    void printBoard () {
+        for (var i = 0; i < map.length; i++) {
+            print(map[i]);
+        }
+    }
+
+    List<List> getNeighboringSpaces(int x, int y) {
+        List<List> neighboringSpaces = new List<List>();
+        if (x > 0) neighboringSpaces.add()
+        return neighboringSpaces;
+    }
 }

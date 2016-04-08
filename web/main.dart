@@ -5,6 +5,9 @@ import 'package:react/react.dart';
 import 'package:go/go_game.dart';
 
 main() async {
+  GoModule module = new GoModule();
+  await module.load();
+
   reactClient.setClientConfiguration();
-  render(BoardSvg({}), querySelector('#content'));
+  render(module.components.content(), querySelector('#content'));
 }

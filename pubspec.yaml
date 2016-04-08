@@ -9,3 +9,7 @@ dependencies:
   bootjack: any
   browser: any
   react: any
+  w_flux:
+    git: git://github.com/Workiva/w_flux
+  w_module:
+    git: git://github.com/Workiva/w_module
