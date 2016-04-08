@@ -3,6 +3,7 @@ part of go_game;
 var BoardSvg = React.registerComponent(() => new _BoardSvg());
 
 class _BoardSvg extends FluxComponent<Actions, GoStore> {
+  
   getInitialState() {
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
     avail -= 50;
