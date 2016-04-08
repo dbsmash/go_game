@@ -20,6 +20,73 @@ class GoBoard {
         return this.map[x][y];
     }
 
+    void killPosition(String killColor, int x, int y) {
+        this.map[x][y] = '-';
+        List neighboringCoords = this.getNeighborCoords(x, y);
+        for (var i =0; i < neighboringCoords.length; i++) {
+            List neighbor = neighboringCoords[i];
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) == killColor) {
+                this.killPosition(killColor, neighbor[0], neighbor[1]);
+            }
+        }
+    }
+
+    void checkForDeath(String killerColor, int killerX, int killerY) {
+        String targetColor = 'B';
+        if (killerColor == 'B') {
+            targetColor = 'W';
+        }
+         
+        List neighboringCoords = this.getNeighborCoords(killerX, killerY);
+        
+        for (var i =0; i < neighboringCoords.length; i++) {
+            List neighbor = neighboringCoords[i];
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) == '-') {
+                // already killed by another pass
+                continue;
+            }
+            if (!this.isAlive(neighbor[0], neighbor[1], new List())) {
+                this.killPosition(targetColor, neighbor[0], neighbor[1]);
+            }
+        }
+    }
+
+    bool isAlive(int x, int y, List checked) {
+        List neighboringCoords = this.getNeighborCoords(x, y);
+        
+        // first see if any adjacent spot is open
+        for (var i =0; i < neighboringCoords.length; i++) {
+            List neighbor = neighboringCoords[i];
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) == '-') {
+                return true;
+            }
+
+        }
+        List<bool> aliveNeighbors = new List();
+
+        for (var ii =0; ii < neighboringCoords.length; ii++) {
+            List neighbor = neighboringCoords[ii];
+            if (checked.contains('${neighbor[0]}-${neighbor[1]}')) {
+                continue;
+            }
+            checked.add('${neighbor[0]}-${neighbor[1]}');
+            if (this.getColorIndicatorAt(neighbor[0], neighbor[1]) != this.getColorIndicatorAt(x, y)) {
+                // stop checking this direction as it is enemy
+                continue;
+            }
+
+            aliveNeighbors.add(this.isAlive(neighbor[0], neighbor[1], checked));
+        }
+
+        for (var j = 0; j < aliveNeighbors.length; j++) {
+            if (aliveNeighbors[j] == true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     List getNeighborCoords(int x, int y) {
         List neighbors = new List();
 
@@ -32,20 +99,23 @@ class GoBoard {
     }
 
     bool isLegalMove(String color, int x, int y) {
-        List neighbors = this.getNeighborCoords(x, y);
-        for (var i =0; i < neighbors.length; i++) {
-        }
-        return false;
+        // TODO
+        return true;
     }
 
-    void makeMove(int x, int y) {
+    bool makeMove(int x, int y) {
         String color = 'B';
         if (!this.blackTurn) {
             color = 'W';
         }
+
+        if (!this.isLegalMove(color, x, y)) {
+            return false;
+        }
         this.map[x][y] = color;
         this.blackTurn = !this.blackTurn;
-        this.getNeighborCoords(x, y);
+        this.checkForDeath(color, x, y);
+        return true;
     }
 
     void printBoard () {
@@ -83,10 +153,12 @@ class GoStore extends Store {
   }
 
   void _handlePieceRequest(PlayPiecePayload payload) {
-    this.board.makeMove(payload.x, payload.y);
+    bool success = this.board.makeMove(payload.x, payload.y);
+    if (!success) {
+        return;
+    }
     // handle illegal move
     blackTurn = !blackTurn;
     this.trigger();
-    //_events.boardUpdated(this.board, key);
   }
 }
