@@ -5,9 +5,18 @@ import 'package:react/react.dart';
 import 'package:go/go_game.dart';
 
 main() async {
-  GoModule module = new GoModule();
-  await module.load();
+  GoModule gameModule = new GoModule();
+  await gameModule.load();
+
+  ScoreModule scoreModule = new ScoreModule();
+  await scoreModule.load();
+
+  gameModule.events.newCapturesReported.listen((payload){
+    scoreModule.api.requestCaptureUpdate(payload);
+  });
 
   reactClient.setClientConfiguration();
-  render(module.components.content(), querySelector('#content'));
+  render(gameModule.components.content(), querySelector('.content'));
+
+  render(scoreModule.components.content(), querySelector('.scoreBoard'));
 }

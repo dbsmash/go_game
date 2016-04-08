@@ -7,6 +7,13 @@ class PlayPiecePayload {
   PlayPiecePayload(this.x, this.y);
 }
 
+class UpdateCapturePayload {
+  int captures;
+  String color;
+
+  UpdateCapturePayload(this.color, this.captures);
+}
+
 class BoardUpdatedPayload {
   List<List> board;
 

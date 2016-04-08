@@ -18,6 +18,8 @@ part 'src/store.dart';
 part 'src/components.dart';
 part 'src/payloads.dart';
 part 'src/events.dart';
+part 'src/api.dart';
+part 'src/score_component.dart';
 
 class GoModule extends Module {
   GoComponents _components;
@@ -33,5 +35,25 @@ class GoModule extends Module {
     GoStore store = new GoStore(actions, _events);
 
     _components = new GoComponents(actions, store);
+  }
+}
+
+class ScoreModule extends Module {
+  ScoreComponents _components;
+  ScoreEvents _events;
+  ScoreApi _api;
+
+  ScoreComponents get components => _components;
+  ScoreEvents get events => _events;
+  ScoreApi get api => _api;
+
+  ScoreModule() {
+    _events = new ScoreEvents();
+
+    ScoreActions actions = new ScoreActions();
+    ScoreStore store = new ScoreStore(actions, _events);
+    _api = new ScoreApi(actions, store);
+
+    _components = new ScoreComponents(actions, store);
   }
 }
