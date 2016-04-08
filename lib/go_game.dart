@@ -11,6 +11,7 @@ import 'package:w_module/w_module.dart';
 export 'go_game.dart';
 
 part 'src/board_component.dart';
+part 'src/board.dart';
 part 'src/dot_component.dart';
 part 'src/actions.dart';
 part 'src/store.dart';
