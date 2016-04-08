@@ -1,6 +1,6 @@
 library go_game;
 
-import 'dart:html';
+import 'dart:html' hide Event;
 import 'dart:math';
 import 'package:react/react_client.dart' as reactClient;
 import 'package:react/react.dart' as React;
