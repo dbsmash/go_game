@@ -123,10 +123,5 @@ class GoBoard {
             print(map[i]);
         }
     }
-
-    List<List> getNeighboringSpaces(int x, int y) {
-        List<List> neighboringSpaces = new List<List>();
-        if (x > 0) neighboringSpaces.add()
-        return neighboringSpaces;
-    }
+    
 }
