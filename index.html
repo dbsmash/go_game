@@ -8,12 +8,20 @@
 
     <title>Go Game</title>
 
+    <link rel="stylesheet" href="main.css">
+
     <!-- javascript -->
     <script async src="packages/react/react_with_react_dom_prod.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 </head>
 <body>
-    <div id="content"></div>
+    <div class="main">
+        <div class="content"></div>
+        <div class="scoreBoard">
+            <div class="scoreBox" id="capturedBlack"></div>
+            <div class="scoreBox" id="capturedWhite"></div>
+        </div>
+    </div>
 
     <!-- execute last -->
     <script src="packages/react/react.js"></script>
