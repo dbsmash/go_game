@@ -1,11 +1,12 @@
 part of go_game;
 
 class GoBoard {
+    GoStore store;
     List<List> map;
     bool blackTurn = true;
     int size;
 
-    GoBoard(this.size) {
+    GoBoard(this.size, this.store) {
         this.map = new List<List>();
         for (var i =0; i < this.size; i++) {
             List row = new List();
@@ -22,6 +23,9 @@ class GoBoard {
 
     void killPosition(String killColor, int x, int y) {
         this.map[x][y] = '-';
+
+        this.store.events.newCapturesReported(new UpdateCapturePayload(killColor, 1),key);
+        
         List neighboringCoords = this.getNeighborCoords(x, y);
         for (var i =0; i < neighboringCoords.length; i++) {
             List neighbor = neighboringCoords[i];

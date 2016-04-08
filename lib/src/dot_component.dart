@@ -35,7 +35,7 @@ class _Dot extends FluxComponent<Actions, GoStore> {
     }
     actions.requestPiecePlacement(
         new PlayPiecePayload(this.props['column'], this.props['row']));
-    this.redraw();
+    //this.redraw();
   }
 
   render() {

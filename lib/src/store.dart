@@ -11,7 +11,7 @@ class GoStore extends Store {
 
   GoStore(this._actions, this._events) {
     _actions.requestPiecePlacement.listen(_handlePieceRequest);
-    board = new GoBoard(19);
+    board = new GoBoard(19, this);
   }
 
   String getHoverColor() {
@@ -28,6 +28,29 @@ class GoStore extends Store {
     }
     // handle illegal move
     blackTurn = !blackTurn;
+    this.trigger();
+  }
+}
+
+class ScoreStore extends Store {
+  ScoreActions _actions;
+  ScoreEvents _events;
+
+  int blackCaptured = 0;
+  int whiteCaptured = 0;
+
+  ScoreStore(this._actions, this._events){
+    _actions.requestCaptureRecord.listen(_handleCapture);
+  }
+
+  void _handleCapture(UpdateCapturePayload payload) {
+
+    String color = payload.color;
+    if (color == 'B') {
+      this.blackCaptured += payload.captures;
+      } else if (color == 'W') {
+        this.whiteCaptured += payload.captures;
+      }
     this.trigger();
   }
 }
