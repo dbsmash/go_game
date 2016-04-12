@@ -10,17 +10,21 @@ import 'package:w_module/w_module.dart';
 
 export 'go_game.dart';
 
-part 'src/board_component.dart';
-part 'src/board.dart';
-part 'src/dot_component.dart';
+
+part 'src/stores/board.dart';
+part 'src/stores/store.dart';
+
 part 'src/actions.dart';
-part 'src/store.dart';
+part 'src/api.dart';
+part 'src/events.dart';
 part 'src/components.dart';
 part 'src/payloads.dart';
-part 'src/events.dart';
-part 'src/api.dart';
-part 'src/score_component.dart';
-part 'src/score_box_component.dart';
+
+part 'src/components/board_component.dart';
+part 'src/components/dot_component.dart';
+part 'src/components/score_component.dart';
+part 'src/components/score_box_component.dart';
+
 
 class GoModule extends Module {
   GoComponents _components;
