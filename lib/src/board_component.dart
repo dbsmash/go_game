@@ -5,7 +5,8 @@ var BoardSvg = React.registerComponent(() => new _BoardSvg());
 class _BoardSvg extends FluxComponent<Actions, GoStore> {
   
   getInitialState() {
-    int avail = [window.innerHeight, window.innerWidth].reduce(min);
+    int avail = [window.innerHeight, window.innerWidth].reduce(max);
+    avail = (avail / 2).round();
     avail -= 50;
     int height = avail;
     double offset = height / (store.board.size + 1);

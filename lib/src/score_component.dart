@@ -21,48 +21,37 @@ class _Score extends FluxComponent<ScoreActions, ScoreStore> {
 
   render() {
     List children = new List();
-    int blackCaptures = store.blackCaptured;
-    int whiteCaptures = store.whiteCaptured;
-    var blackRect = React.rect({
+
+    var blackBox = ScoreBox({
       'x': 0,
-      'y': 10,
+      'y': 45,
       'height': this.state['height'],
       'width': this.state['width'],
+      'actions': this.actions, 
+      'store': this.store,
+      'color': 'black',
       'fill': '#ffdc99',
       'stroke': 'darkGray',
       'strokeWidth': 1,
       'style': {'opacity': '.95',}
     });
 
-    var whiteRect = React.rect({
+    var whiteBox = ScoreBox({
       'x': 0,
-      'y': (10 + this.state['height'] + 20),
+      'y': 245,
       'height': this.state['height'],
       'width': this.state['width'],
+      'actions': this.actions, 
+      'store': this.store,
+      'color': 'white',
       'fill': '#ffdc99',
       'stroke': 'darkGray',
       'strokeWidth': 1,
       'style': {'opacity': '.95',}
     });
 
-    children.add(blackRect);
-    children.add(whiteRect);
-
-    children.add(React.text({
-      'x': 30,
-      'y': 10 + (this.state['height'] / 2).round(),
-      'height': 100,
-      'width': 300,
-      'fontSize': 24
-      }, '${blackCaptures} black stones captured'));
-
-    children.add(React.text({
-      'x': 30,
-      'y': 10 + this.state['height'] + (this.state['height'] / 2).round() + 20,
-      'height': 100,
-      'width': this.state['width'],
-      'fontSize': 24
-      }, '${whiteCaptures} white stones captured'));
+    children.add(blackBox);
+    children.add(whiteBox);
 
     return React.svg({
       'version': '1.1',

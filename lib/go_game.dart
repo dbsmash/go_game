@@ -20,6 +20,7 @@ part 'src/payloads.dart';
 part 'src/events.dart';
 part 'src/api.dart';
 part 'src/score_component.dart';
+part 'src/score_box_component.dart';
 
 class GoModule extends Module {
   GoComponents _components;
