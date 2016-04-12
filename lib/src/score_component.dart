@@ -3,10 +3,6 @@ part of go_game;
 var Score = React.registerComponent(() => new _Score());
 
 class _Score extends FluxComponent<ScoreActions, ScoreStore> {
-  
-  bool shouldComponentUpdate(nextProps, nextState) {
-    return true;
-  }
 
   getInitialState() {
     int avail = [window.innerHeight, window.innerWidth].reduce(min);
