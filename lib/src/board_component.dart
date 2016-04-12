@@ -20,6 +20,13 @@ class _BoardSvg extends FluxComponent<Actions, GoStore> {
     };
   }
 
+  componentDidMount(_) {
+    window.onResize.listen((e) {
+      this.setState(this.getInitialState());
+      render();
+    });
+  }
+
   render() {
 
     List children = new List();

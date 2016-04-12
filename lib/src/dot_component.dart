@@ -6,7 +6,6 @@ class _Dot extends FluxComponent<Actions, GoStore> {
   getInitialState() {
     return {
       'color': this.props['color'],
-      'radius': this.props['radius'],
       'hover': false
     };
   }
@@ -24,6 +23,15 @@ class _Dot extends FluxComponent<Actions, GoStore> {
       return true;
     }
     if (nextState['hover'] != this.state['hover']) {
+      return true;
+    }
+    if (nextState['radius'] != this.state['radius']) {
+      return true;
+    }
+    if (nextProps['x'] != this.props['x']) {
+      return true;
+    }
+    if (nextProps['y'] != this.props['x']) {
       return true;
     }
     return false;
@@ -53,11 +61,10 @@ class _Dot extends FluxComponent<Actions, GoStore> {
     } else if (color == 'B') {
       color = 'black';
     }
-
     return React.circle({
       'cx': this.props['x'],
       'cy': this.props['y'],
-      'r': this.state['radius'],
+      'r': this.props['radius'],
       'fill': color,
       'opacity': opacity,
       'onClick': (e) => this.dotClicked(e),

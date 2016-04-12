@@ -17,6 +17,13 @@ class _ScoreBox extends FluxComponent<ScoreActions, ScoreStore> {
     };
   }
 
+  componentDidMount(_) {
+    window.onResize.listen((e) {
+      this.setState(this.getInitialState());
+      render();
+    });
+  }
+
   render() {
     List children = new List();
     String color = this.state['color'];
