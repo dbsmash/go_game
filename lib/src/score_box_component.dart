@@ -11,10 +11,9 @@ class _ScoreBox extends FluxComponent<ScoreActions, ScoreStore> {
     
     return {
       'color': this.props['color'],
-      'x': this.props['x'],
-      'y': this.props['y'],
       'width': width,
-      'height': height
+      'height': height,
+      'offset_box': this.props['offset_box']
     };
   }
 
@@ -22,11 +21,15 @@ class _ScoreBox extends FluxComponent<ScoreActions, ScoreStore> {
     List children = new List();
     String color = this.state['color'];
 
-    int x = this.state['x'];
-    int y = this.state['y'];
+    int x = 0;
+    int y = 0;
 
     int width = this.state['width'];
     int height = this.state['height'];
+    
+    if (this.state['offset_box'] == true) {
+      y += height + 20;
+    }
 
     int radius = (height / 8).round() - 1;
 

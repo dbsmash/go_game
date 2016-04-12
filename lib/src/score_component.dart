@@ -23,8 +23,6 @@ class _Score extends FluxComponent<ScoreActions, ScoreStore> {
     List children = new List();
 
     var blackBox = ScoreBox({
-      'x': 0,
-      'y': 45,
       'actions': this.actions, 
       'store': this.store,
       'color': 'black',
@@ -35,11 +33,10 @@ class _Score extends FluxComponent<ScoreActions, ScoreStore> {
     });
 
     var whiteBox = ScoreBox({
-      'x': 0,
-      'y': 245,
       'actions': this.actions, 
       'store': this.store,
       'color': 'white',
+      'offset_box': true,
       'fill': '#ffdc99',
       'stroke': 'darkGray',
       'strokeWidth': 1,
