@@ -25,8 +25,6 @@ class _Score extends FluxComponent<ScoreActions, ScoreStore> {
     var blackBox = ScoreBox({
       'x': 0,
       'y': 45,
-      'height': this.state['height'],
-      'width': this.state['width'],
       'actions': this.actions, 
       'store': this.store,
       'color': 'black',
@@ -39,8 +37,6 @@ class _Score extends FluxComponent<ScoreActions, ScoreStore> {
     var whiteBox = ScoreBox({
       'x': 0,
       'y': 245,
-      'height': this.state['height'],
-      'width': this.state['width'],
       'actions': this.actions, 
       'store': this.store,
       'color': 'white',
